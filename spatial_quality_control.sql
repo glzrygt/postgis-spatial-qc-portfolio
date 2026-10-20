@@ -30,3 +30,11 @@ FROM ilce_sinirlari i
 LEFT JOIN poi_veri p ON ST_Contains(i.geom, p.geom)
 GROUP BY ilce_adi
 ORDER BY toplam_poi_sayisi DESC;
+
+--herhangi bir yola 50 metreden daha uzak olan kopuk POIleri tespit etmek için
+SELECT p.id, p.name, p.category, 'Yola çok uzak (Navigasyon rotası çizilemez)' AS hata_tipi
+FROM poi_veri p
+WHERE NOT EXISTS (
+    SELECT 1 FROM ana_yollar r 
+    WHERE ST_DWithin(p.geom::geography, r.geom::geography, 50.0)
+);
